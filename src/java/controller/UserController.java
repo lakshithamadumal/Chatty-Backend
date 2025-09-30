@@ -68,18 +68,22 @@ public class UserController extends HttpServlet {
                 responseObject.addProperty("message", "This Contact Number Already Exist");
             } else {
                 User user = new User(firstName, lastName, countryCode, contactNo);
+                user.setCreatedAt(new Date());
+                user.setUpdatedAt(new Date());
                 int id = (int) s.save(user);
                 s.beginTransaction().commit();
                 s.close();
 
                 responseObject.add("user", gson.toJsonTree(user));
 
-                String appPath = getServletContext().getRealPath("");
-                String newPath = appPath.replace("build" + File.separator + "web", "web" + File.separator + "profile-images");
-                File profileFolder = new File(newPath, String.valueOf(id));
-                profileFolder.mkdirs();
-                File file1 = new File(profileFolder, "profile.png");
-                Files.copy(profileImage.getInputStream(), file1.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                if (profileImage != null) {
+                    String appPath = getServletContext().getRealPath("");
+                    String newPath = appPath.replace("build" + File.separator + "web", "web" + File.separator + "profile-images");
+                    File profileFolder = new File(newPath, String.valueOf(id));
+                    profileFolder.mkdirs();
+                    File file1 = new File(profileFolder, "profile.png");
+                    Files.copy(profileImage.getInputStream(), file1.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
 
                 responseObject.addProperty("status", true);
             }
