@@ -10,5 +10,9 @@
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="hibernate.show_sql">true</property>
+        <mapping class="entity.User"/>
+        <mapping class="entity.Chat"/>
+        <mapping class="entity.FriendList"/>
+
     </session-factory>
 </hibernate-configuration>

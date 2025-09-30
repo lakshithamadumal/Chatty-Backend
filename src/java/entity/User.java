@@ -6,6 +6,8 @@ package entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,6 +37,16 @@ public class User extends BaseEntity {
 
     @Column(name = "contact_no", length = 45, nullable = false)
     private String contactNo;
+
+    public User() {
+    }
+
+    public User(String firstName, String lastName, String countryCode, String contactNo) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.countryCode = countryCode;
+        this.contactNo = contactNo;
+    }
 
     public int getId() {
         return id;
