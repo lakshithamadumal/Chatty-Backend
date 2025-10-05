@@ -98,6 +98,16 @@ public class ChatService {
 
         ChatService.sendToUser(chat.getTo().getContactNo(), envelope);
         ChatService.sendToUser(chat.getFrom().getContactNo(), envelope);
+
+        ChatService.sendToUser(chat.getTo().getContactNo(), friendListEnvelope(getFriendChatsForUser(chat.getTo().getContactNo())));
+        ChatService.sendToUser(chat.getFrom().getContactNo(), friendListEnvelope(getFriendChatsForUser(chat.getFrom().getContactNo())));
+    }
+
+    public static Map<String, Object> friendListEnvelope(List<ChatSummary> list) {
+        Map<String, Object> envelope = new HashMap<>();
+        envelope.put("type", "chat");
+        envelope.put("payload", list);
+        return envelope;
     }
 
 }
