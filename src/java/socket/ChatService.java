@@ -1,88 +1,103 @@
 package socket;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import entity.Chat;
+import entity.FriendList;
+import entity.Status;
+import entity.User;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.Session;
 import org.hibernate.Criteria;
-import org.hibernate.criterion.Order;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import util.HibernateUtil;
-import entity.Chat;
-import entity.User;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import org.hibernate.Transaction;
-import static org.hibernate.criterion.Restrictions.eq;
 
-/**
- *
- * @author Laky
- */
 public class ChatService {
 
-    private static final ConcurrentHashMap<String, Session> SESSIONS = new ConcurrentHashMap<>();
-    private static final Gson GSON = new Gson();
-    private static final String URL = "http://localhost:8080"; //ngrokproxy url
+    private static final ConcurrentHashMap<Integer, Session> SESSIONS = new ConcurrentHashMap<>();
+    private static final Gson GSON = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create();
+    public static final String URL = "https://583a35f0ae0b.ngrok-free.app"; // ngrok proxy url
 
-    public static void register(String userId, Session session) {
-        ChatService.SESSIONS.put(userId, session);
+    public static void register(int userId, Session session) {
+        SESSIONS.put(userId, session);
     }
 
-    public static void unregister(String userId) {
-        ChatService.SESSIONS.remove(userId);
+    public static void unregister(int userId) {
+        SESSIONS.remove(userId);
     }
 
-    public static void sendToUser(String userId, Object payload) {
-        Session WS = ChatService.SESSIONS.get(userId);
-        if (WS != null && WS.isOpen()) {
+    public static void sendToUser(int userId, Object payload) {
+        Session ws = SESSIONS.get(userId);
+        if (ws != null && ws.isOpen()) {
             try {
-                WS.getBasicRemote().sendText(ChatService.GSON.toJson(payload));
-            } catch (Exception e) {
+                System.out.println(GSON.toJson(payload));
+                ws.getBasicRemote().sendText(GSON.toJson(payload));
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public static List<ChatSummary> getFriendChatsForUser(String userContact) {
+    public static List<ChatSummary> getFriendChatsForUser(int userId) {
+        org.hibernate.Session session = HibernateUtil.getSessionFactory().openSession();
         try {
-            org.hibernate.Session session = HibernateUtil.getSessionFactory().openSession();
-            Criteria c1 = session.createCriteria(Chat.class);
-            Criterion rest1 = Restrictions.or(Restrictions.eq("from", userContact),
-                    Restrictions.eq("to", userContact));
+            Criteria friendListCriteria = session.createCriteria(FriendList.class);
+            friendListCriteria.add(Restrictions.eq("userId.id", userId));
+            friendListCriteria.add(Restrictions.eq("status", Status.ACTIVE));
+            List<FriendList> friendList = friendListCriteria.list();// my friends list
 
-            c1.add(rest1);
-            c1.addOrder(Order.desc("updatedAt"));
+            Map<Integer, ChatSummary> map = new LinkedHashMap<>();
+            for (FriendList fl : friendList) {
+                User myFriend = fl.getFriendId();
+                Criteria c1 = session.createCriteria(Chat.class);
+                Criterion rest1 = Restrictions.and(Restrictions.eq("from.id", userId),
+                        Restrictions.eq("to.id", myFriend.getId()));
+                Criterion rest2 = Restrictions.and(Restrictions.eq("from.id", myFriend.getId()),
+                        Restrictions.eq("to.id", userId));
+                Criterion rest3 = Restrictions.or(rest1, rest2);
+                c1.add(rest3);
+                c1.addOrder(Order.desc("updatedAt"));
 
-            List<Chat> chats = c1.list();
-            Map<String, ChatSummary> map = new LinkedHashMap<>();
+                List<Chat> chats = c1.list();
 
-            for (Chat chat : chats) {
-                String friendContact = chat.getFrom().getContactNo().equals(userContact)
-                        ? chat.getTo().getContactNo() : chat.getFrom().getContactNo();
-                if (!map.containsKey(friendContact)) {
-                    Criteria c2 = session.createCriteria(User.class);
-                    c2.add(Restrictions.eq("contactNo", friendContact));
-                    User friend = (User) c2.uniqueResult();
+                if (!chats.isEmpty()) {
 
-                    String profileImage = ChatService.URL + "/Chatty/profile-images/" + friend.getId() + "/profile.png";
-                    int unread = 2;
-                    map.put(friendContact, new ChatSummary(
-                            friendContact,
-                            friend.getFirstName() + " " + friend.getLastName(),
-                            chat.getMessage(),
-                            chat.getUpdatedAt(),
-                            unread,
-                            profileImage));
+                    int unread = 0;
+                    for (Chat c : chats) {
+                        if (c.getFrom().getId() == myFriend.getId()
+                                && c.getTo().getId() == userId
+                                && c.getStatus().equals(Status.DELIVERED)) {
+                            unread += 1;
+                        }
+                    }
+                    if (!map.containsKey(myFriend.getId())) {
+//                        String profileImage = ProfileService.getProfileUrl(myFriend.getId());
+                        String profileImage = ChatService.URL + "PingooBackend/Profile-images/" + myFriend.getId() + "/profile1.png";
+                        map.put(myFriend.getId(), new ChatSummary(
+                                myFriend.getId(),
+                                myFriend.getFirstName() + " " + myFriend.getLastName(),
+                                chats.get(0).getMessage(),
+                                chats.get(0).getUpdatedAt(),
+                                unread,
+                                profileImage
+                        ));
+                    }
                 }
             }
 
             return new ArrayList<>(map.values());
-        } catch (Exception e) {
-            throw new RuntimeException("Data fetch failed!");
+        } finally {
+            session.close();
         }
     }
 
@@ -91,23 +106,125 @@ public class ChatService {
         Transaction tr = session.beginTransaction();
         session.persist(chat);
         tr.commit();
+        session.close();
 
         Map<String, Object> envelope = new HashMap<>();
         envelope.put("type", "chat");
         envelope.put("payload", chat);
 
-        ChatService.sendToUser(chat.getTo().getContactNo(), envelope);
-        ChatService.sendToUser(chat.getFrom().getContactNo(), envelope);
+        sendToUser(chat.getTo().getId(), envelope);
+        sendToUser(chat.getFrom().getId(), envelope);
 
-        ChatService.sendToUser(chat.getTo().getContactNo(), friendListEnvelope(getFriendChatsForUser(chat.getTo().getContactNo())));
-        ChatService.sendToUser(chat.getFrom().getContactNo(), friendListEnvelope(getFriendChatsForUser(chat.getFrom().getContactNo())));
+        sendToUser(chat.getTo().getId(), friendListEnvelope(getFriendChatsForUser(chat.getTo().getId())));
+        sendToUser(chat.getFrom().getId(), friendListEnvelope(getFriendChatsForUser(chat.getFrom().getId())));
     }
 
     public static Map<String, Object> friendListEnvelope(List<ChatSummary> list) {
         Map<String, Object> envelope = new HashMap<>();
-        envelope.put("type", "chat");
+        envelope.put("type", "friend_list");
         envelope.put("payload", list);
         return envelope;
     }
 
+    public static List<Chat> getChatHistory(int userId, int friendId) {
+        org.hibernate.Session session = HibernateUtil.getSessionFactory().openSession();
+        try {
+            Criteria c = session.createCriteria(Chat.class);
+            c.add(Restrictions.or(
+                    Restrictions.and(
+                            Restrictions.eq("from.id", userId),
+                            Restrictions.eq("to.id", friendId)
+                    ),
+                    Restrictions.and(
+                            Restrictions.eq("from.id", friendId),
+                            Restrictions.eq("to.id", userId)
+                    )
+            ));
+            c.addOrder(Order.desc("createdAt"));
+            List<Chat> list = c.list();
+
+            Transaction tr = session.beginTransaction();
+
+            for (Chat chat : list) {
+                /*friendID == received friendID && me == userID && status = SENT*/
+                if (chat.getFrom().getId() == friendId
+                        && chat.getTo().getId() == userId
+                        && chat.getStatus().equals(Status.DELIVERED)) {
+                    chat.setStatus(Status.READ);
+                    session.update(chat);
+                }
+            }
+            tr.commit();
+            return list;
+        } finally {
+            session.close();
+        }
+    }
+
+    public static Map<String, Object> singleChatEnvelope(List<Chat> chats) {
+        Map<String, Object> envelope = new HashMap<>();
+        envelope.put("type", "single_chat");
+        envelope.put("payload", chats);
+
+        return envelope;
+    }
+
+    public static void saveNewChat(int userId, int friendId, String message) {
+
+        org.hibernate.Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tr = s.beginTransaction();
+        User me = (User) s.get(User.class, userId);
+        User friend = (User) s.get(User.class, friendId);
+
+        Criteria c1 = s.createCriteria(FriendList.class);
+        // see if I have a friend
+        c1.add(Restrictions.and(Restrictions.eq("userId", me), Restrictions.eq("friendId", friend)));
+        FriendList fl1 = (FriendList) c1.uniqueResult();
+        if (fl1 == null) {
+            FriendList friend1 = new FriendList();
+            friend1.setFriendId(friend);
+            friend1.setUserId(me);
+            friend1.setStatus(Status.ACTIVE);
+            s.save(friend1);
+        }
+
+        Criteria c2 = s.createCriteria(FriendList.class);
+        c2.add(Restrictions.and(Restrictions.eq("userId", friend), Restrictions.eq("friendId", me)));
+        FriendList fl2 = (FriendList) c2.uniqueResult();
+        if (fl2 == null) {
+            FriendList friend1 = new FriendList();
+            friend1.setFriendId(me);
+            friend1.setUserId(friend);
+            friend1.setStatus(Status.ACTIVE);
+            s.save(friend1);
+        }
+
+        Chat chat = new Chat();
+        chat.setFrom(me);
+        chat.setTo(friend);
+        chat.setMessage(message);
+        chat.setCreatedAt(new Date());
+        chat.setUpdatedAt(new Date());
+        chat.setFiles("FILE:");
+        s.save(chat);
+        tr.commit();
+        s.close();
+
+        Map<String, Object> envelope = new HashMap();
+        envelope.put("type", "new_message");
+        envelope.put("payload", chat);
+
+        // Update both side -> SingleChatScreen
+        ChatService.sendToUser(chat.getFrom().getId(), envelope); // from single chat
+        ChatService.sendToUser(chat.getTo().getId(), envelope); // to single chat
+
+        //Update both side -> HomeChatList
+        List<ChatSummary> fromList = ChatService.getFriendChatsForUser(chat.getFrom().getId());//from List
+        List<ChatSummary> toList = ChatService.getFriendChatsForUser(chat.getTo().getId()); // toList
+        Map<String, Object> fromMap = ChatService.friendListEnvelope(fromList); // from
+        Map<String, Object> toMap = ChatService.friendListEnvelope(toList); //to
+
+        ChatService.sendToUser(chat.getFrom().getId(), fromMap); // update from home chat
+        ChatService.sendToUser(chat.getTo().getId(), toMap); // update to home chat
+    }
 }
