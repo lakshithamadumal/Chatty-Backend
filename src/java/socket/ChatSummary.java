@@ -1,5 +1,7 @@
 package socket;
 
+import java.util.Date;
+
 /**
  *
  * @author Laky
@@ -9,14 +11,14 @@ public class ChatSummary {
     private String friendContact;
     private String friendName;
     private String lastMessage;
-    private long lastTimeStamp;
+    private Date lastTimeStamp;
     private int unreadCount;
     private String profileImage;
 
     public ChatSummary() {
     }
 
-    public ChatSummary(String friendContact, String friendName, String lastMessage, long lastTimeStamp, int unreadCount, String profileImage) {
+    public ChatSummary(String friendContact, String friendName, String lastMessage, Date lastTimeStamp, int unreadCount, String profileImage) {
         this.friendContact = friendContact;
         this.friendName = friendName;
         this.lastMessage = lastMessage;
@@ -49,11 +51,11 @@ public class ChatSummary {
         this.lastMessage = lastMessage;
     }
 
-    public long getLastTimeStamp() {
+    public Date getLastTimeStamp() {
         return lastTimeStamp;
     }
 
-    public void setLastTimeStamp(long lastTimeStamp) {
+    public void setLastTimeStamp(Date lastTimeStamp) {
         this.lastTimeStamp = lastTimeStamp;
     }
 
