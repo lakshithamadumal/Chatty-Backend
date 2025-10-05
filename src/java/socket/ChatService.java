@@ -82,7 +82,7 @@ public class ChatService {
                     }
                     if (!map.containsKey(myFriend.getId())) {
 //                        String profileImage = ProfileService.getProfileUrl(myFriend.getId());
-                        String profileImage = ChatService.URL + "PingooBackend/Profile-images/" + myFriend.getId() + "/profile1.png";
+                        String profileImage = ChatService.URL + "Chatty/Profile-images/" + myFriend.getId() + "/profile.png";
                         map.put(myFriend.getId(), new ChatSummary(
                                 myFriend.getId(),
                                 myFriend.getFirstName() + " " + myFriend.getLastName(),
