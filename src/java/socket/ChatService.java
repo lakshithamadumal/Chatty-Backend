@@ -10,6 +10,8 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import util.HibernateUtil;
 import entity.Chat;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import static org.hibernate.criterion.Restrictions.eq;
 
 /**
@@ -43,14 +45,20 @@ public class ChatService {
     public static List<ChatSummary> getFriendChatsForUser(String userContact) {
         try {
             org.hibernate.Session session = HibernateUtil.getSessionFactory().openSession();
-            Criteria c = session.createCriteria(Chat.class);
-            Criterion rest1 = Restrictions.eq("fromUser", userContact),Restrictions.eq("toUser", userContact));
-            c.add(rest1);
-            c.addOrder(Order.desc(userContact).desc("updatedAt"));
-            List<Chat> chats = c.list();
+            Criteria c1 = session.createCriteria(Chat.class);
+            Criterion rest1 = Restrictions.or(Restrictions.eq("from", userContact),
+                    Restrictions.eq("to", userContact));
+
+            c1.add(rest1);
+            c1.addOrder(Order.desc("updatedAt"));
+
+            List<Chat> chats = c1.list();
+            Map<String, Chat> map = new LinkedHashMap<>();
+
             return null;
         } catch (Exception e) {
-            throw new RuntimeException("Data fetch failed");
+            throw new RuntimeException("Data fetch failed!");
         }
     }
+
 }
