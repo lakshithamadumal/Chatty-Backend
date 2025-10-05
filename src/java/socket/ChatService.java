@@ -10,6 +10,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import util.HibernateUtil;
 import entity.Chat;
+import entity.User;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import static org.hibernate.criterion.Restrictions.eq;
@@ -54,6 +55,19 @@ public class ChatService {
 
             List<Chat> chats = c1.list();
             Map<String, Chat> map = new LinkedHashMap<>();
+
+            for (Chat chat : chats) {
+                String friendContact = chat.getFrom().getContactNo().equals(userContact)
+                        ? chat.getTo().getContactNo() : chat.getFrom().getContactNo();
+                if (!map.containsKey(friendContact)) {
+                    Criteria c2 = session.createCriteria(User.class);
+                    c2.add(Restrictions.eq("contactNo", friendContact));
+                    User friend = (User) c2.uniqueResult();
+
+                    String profileImage = "http://localhost:8080/Chatty/profile-images/" + friend.getId() + "/profile.png";
+                    int unread = 2;
+                }
+            }
 
             return null;
         } catch (Exception e) {
