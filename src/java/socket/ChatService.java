@@ -26,7 +26,7 @@ public class ChatService {
 
     private static final ConcurrentHashMap<Integer, Session> SESSIONS = new ConcurrentHashMap<>();
     private static final Gson GSON = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create();
-    public static final String URL = "https://6cf11cdbbe41.ngrok-free.app"; // ngrok proxy url
+    public static final String URL = "https://70546ee301a1.ngrok-free.app"; // ngrok proxy url
 
     public static void register(int userId, Session session) {
         SESSIONS.put(userId, session);
@@ -82,7 +82,7 @@ public class ChatService {
                     }
                     if (!map.containsKey(myFriend.getId())) {
 //                        String profileImage = ProfileService.getProfileUrl(myFriend.getId());
-                        String profileImage = ChatService.URL + "Chatty/Profile-images/" + myFriend.getId() + "/profile.png";
+                        String profileImage = ChatService.URL + "/Chatty/profile-images/" + myFriend.getId() + "/profile.png";
                         map.put(myFriend.getId(), new ChatSummary(
                                 myFriend.getId(),
                                 myFriend.getFirstName() + " " + myFriend.getLastName(),
