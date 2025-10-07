@@ -50,7 +50,7 @@ public class ChatEndPoint {
     @OnError
     public void onError(Session session, Throwable throwable) {
         if (userId > 0) {
-//            UserService.updateLogOutStatus(userId);
+            UserService.updateLogOutStatus(userId);
         }
         throwable.printStackTrace();
     }
@@ -108,7 +108,7 @@ public class ChatEndPoint {
 //                    ChatService.sendToUser(userId, envelope);
                     break;
                 }
-                
+
                 default: {
                     System.out.println("Ignored unknown client type: " + type);
                 }
