@@ -34,42 +34,24 @@ import util.HibernateUtil;
  */
 public class UserService {
 
+    // Call @OnOpen
     public static void updateLogInStatus(int userId) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
-        User fromUser = (User) s.get(User.class, userId);
-        fromUser.setStatus(Status.ONLINE);
-        fromUser.setUpdatedAt(new Date());
-        s.update(fromUser);
-        s.beginTransaction().commit();
-    }
-    
-        public static void updateLogOutStatus(int userId) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
-        User fromUser = (User) s.get(User.class, userId);
-        fromUser.setStatus(Status.OFFLINE);
-        fromUser.setUpdatedAt(new Date());
-        s.update(fromUser);
-        s.beginTransaction().commit();
+        updateStatus(userId, Status.ONLINE);
     }
 
-//    // Call @OnOpen
-//    public static void updateLogInStatus(int userId) {
-//        updateStatus(userId, Status.ONLINE);
-//    }
-//
-//    // Call @OnClose
-//    public static void updateLogOutStatus(int userId) {
-//        updateStatus(userId, Status.OFFLINE);
-//    }
-//
-//    private static void updateStatus(int userId, Status status) {
-//        Session s = HibernateUtil.getSessionFactory().openSession();
-//        User fromUser = (User) s.get(User.class, userId);
-//        fromUser.setStatus(status);
-//        fromUser.setUpdatedAt(new Date());
-//        s.update(fromUser);
-//        s.beginTransaction().commit();
-//    }
+    // Call @OnClose
+    public static void updateLogOutStatus(int userId) {
+        updateStatus(userId, Status.OFFLINE);
+    }
+
+    private static void updateStatus(int userId, Status status) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        User fromUser = (User) s.get(User.class, userId);
+        fromUser.setStatus(status);
+        fromUser.setUpdatedAt(new Date());
+        s.update(fromUser);
+        s.beginTransaction().commit();
+    }
 //
 //    public static void updateFriendChatStatus(int userId) {
 //        Session s = HibernateUtil.getSessionFactory().openSession();
