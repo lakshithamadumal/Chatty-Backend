@@ -33,7 +33,7 @@ public class ChatEndPoint {
             userId = Integer.parseInt(query.substring("userId=".length()));
             ChatService.register(userId, session);
             UserService.updateLogInStatus(userId);
-//            UserService.updateFriendChatStatus(userId);
+            UserService.updateFriendChatStatus(userId);
 //            ChatService.sendToUser(userId,
 //                    ChatService.friendListEnvelope(ChatService.getFriendChatsForUser(userId)));
         }

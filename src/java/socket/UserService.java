@@ -52,36 +52,36 @@ public class UserService {
         s.update(fromUser);
         s.beginTransaction().commit();
     }
-//
-//    public static void updateFriendChatStatus(int userId) {
-//        Session s = HibernateUtil.getSessionFactory().openSession();
-//        Criteria c1 = s.createCriteria(FriendList.class);
-//        c1.add(Restrictions.eq("userId.id", userId));
-//        c1.add(Restrictions.eq("status", Status.ACTIVE));
-//        //get active friend list
-//        List<FriendList> myFriends = c1.list();
-//
-//        Transaction tr = s.beginTransaction();
-//        for (FriendList myFriend : myFriends) {
-//            User me = myFriend.getUserId();
-//            User friend = myFriend.getFriendId();
-//
-//            if (me.getStatus().equals(Status.ONLINE)) {
-//                Criteria c2 = s.createCriteria(Chat.class);
-//                Criterion rest1 = Restrictions.and(Restrictions.eq("from", friend),
-//                        Restrictions.eq("to", me), Restrictions.eq("status", Status.SENT));
-//                c2.add(rest1);
-//                List<Chat> chats = c2.list();
-//                for (Chat chat : chats) {
-//                    chat.setStatus(Status.DELIVERED);
-//                    chat.setUpdatedAt(new Date());
-//                    s.update(chat);
-//                }
-//            }
-//        }
-//        tr.commit();
-//        s.close();
-//    }
+
+    public static void updateFriendChatStatus(int userId) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Criteria c1 = s.createCriteria(FriendList.class);
+        c1.add(Restrictions.eq("userId.id", userId));
+        c1.add(Restrictions.eq("status", Status.ACTIVE));
+        //get active friend list
+        List<FriendList> myFriends = c1.list();
+
+        Transaction tr = s.beginTransaction();
+        for (FriendList myFriend : myFriends) {
+            User me = myFriend.getUserId();
+            User friend = myFriend.getFriendId();
+
+            if (me.getStatus().equals(Status.ONLINE)) {
+                Criteria c2 = s.createCriteria(Chat.class);
+                Criterion rest1 = Restrictions.and(Restrictions.eq("from", friend),
+                        Restrictions.eq("to", me), Restrictions.eq("status", Status.SENT));
+                c2.add(rest1);
+                List<Chat> chats = c2.list();
+                for (Chat chat : chats) {
+                    chat.setStatus(Status.DELIVERED);
+                    chat.setUpdatedAt(new Date());
+                    s.update(chat);
+                }
+            }
+        }
+        tr.commit();
+        s.close();
+    }
 //
 //    public static Map<String, Object> getFriendData(int friendId) { // single chat header details
 //        Session s = HibernateUtil.getSessionFactory().openSession();
