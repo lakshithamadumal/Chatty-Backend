@@ -43,7 +43,7 @@ public class ChatEndPoint {
     public void onClose(Session session) {
         if (userId > 0) { // userId != null
             ChatService.unregister(userId);
-//            UserService.updateLogOutStatus(userId);
+            UserService.updateLogOutStatus(userId);
         }
     }
 

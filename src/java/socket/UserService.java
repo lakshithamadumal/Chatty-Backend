@@ -42,6 +42,15 @@ public class UserService {
         s.update(fromUser);
         s.beginTransaction().commit();
     }
+    
+        public static void updateLogOutStatus(int userId) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        User fromUser = (User) s.get(User.class, userId);
+        fromUser.setStatus(Status.OFFLINE);
+        fromUser.setUpdatedAt(new Date());
+        s.update(fromUser);
+        s.beginTransaction().commit();
+    }
 
 //    // Call @OnOpen
 //    public static void updateLogInStatus(int userId) {
