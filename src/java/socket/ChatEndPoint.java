@@ -32,7 +32,7 @@ public class ChatEndPoint {
         if (query != null && query.startsWith("userId=")) {
             userId = Integer.parseInt(query.substring("userId=".length()));
             ChatService.register(userId, session);
-//            UserService.updateLogInStatus(userId);
+            UserService.updateLogInStatus(userId);
 //            UserService.updateFriendChatStatus(userId);
 //            ChatService.sendToUser(userId,
 //                    ChatService.friendListEnvelope(ChatService.getFriendChatsForUser(userId)));
