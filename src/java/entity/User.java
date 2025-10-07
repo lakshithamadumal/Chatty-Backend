@@ -38,6 +38,10 @@ public class User extends BaseEntity {
     @Column(name = "contact_no", length = 45, nullable = false)
     private String contactNo;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 45)
+    private Status status = Status.ONLINE;
+    
     public User() {
     }
 
@@ -86,6 +90,14 @@ public class User extends BaseEntity {
 
     public void setContactNo(String contactNo) {
         this.contactNo = contactNo;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
 }
