@@ -99,8 +99,8 @@ public class ChatEndPoint {
                 }
                 case "get_friend_data": {
                     int friendId = (int) ((double) map.get("friendId"));
-//                    Map<String, Object> envelope = UserService.getFriendData(friendId);
-//                    ChatService.sendToUser(userId, envelope);
+                    Map<String, Object> envelope = UserService.getFriendData(friendId);
+                    ChatService.sendToUser(userId, envelope);
                     break;
                 }
                 case "get_all_users": {

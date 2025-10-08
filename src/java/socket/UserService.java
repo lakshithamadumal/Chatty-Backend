@@ -82,16 +82,16 @@ public class UserService {
         tr.commit();
         s.close();
     }
-//
-//    public static Map<String, Object> getFriendData(int friendId) { // single chat header details
-//        Session s = HibernateUtil.getSessionFactory().openSession();
-//        User friend = (User) s.get(User.class, friendId);
-//        s.close();
-//        Map<String, Object> envelope = new HashMap<>();
-//        envelope.put("type", "friend_data");
-//        envelope.put("payload", friend);
-//        return envelope;
-//    }
+
+    public static Map<String, Object> getFriendData(int friendId) { // single chat header details
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        User friend = (User) s.get(User.class, friendId);
+        s.close();
+        Map<String, Object> envelope = new HashMap<>();
+        envelope.put("type", "friend_data");
+        envelope.put("payload", friend);
+        return envelope;
+    }
 //
 //    public static Map<String, Object> getAllUsers(int userId) {
 //        try {
