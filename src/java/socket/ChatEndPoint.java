@@ -6,6 +6,7 @@ package socket;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.internal.LinkedTreeMap;
 import entity.Chat;
 import entity.Status;
 import entity.User;
@@ -108,7 +109,11 @@ public class ChatEndPoint {
                     ChatService.sendToUser(userId, envelope);
                     break;
                 }
-
+                case "set_user_profile": {
+                    Map<String, Object> envelope = UserService.getMyProfileData(userId);
+                    ChatService.sendToUser(userId, envelope);
+                    break;
+                }
                 default: {
                     System.out.println("Ignored unknown client type: " + type);
                 }

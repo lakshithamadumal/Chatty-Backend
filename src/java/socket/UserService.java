@@ -1,5 +1,6 @@
 package socket;
 
+import com.google.gson.JsonObject;
 import controller.test;
 import dto.UserDTO;
 import entity.Chat;
@@ -135,5 +136,22 @@ public class UserService {
         } catch (HibernateException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Map<String, Object> getMyProfileData(int userId) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        User user = (User) s.get(User.class, userId);
+        UserDTO dto = new UserDTO();
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setCountryCode(user.getCountryCode());
+        dto.setContactNo(user.getContactNo());
+        dto.setProfileImage(ProfileService.getProfileUrl(userId));
+
+        s.close();
+        Map<String, Object> map = new HashMap();
+        map.put("type", "user_profile");
+        map.put("payload", dto);
+        return map;
     }
 }
