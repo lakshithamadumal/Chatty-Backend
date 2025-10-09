@@ -92,48 +92,48 @@ public class UserService {
         envelope.put("payload", friend);
         return envelope;
     }
-//
-//    public static Map<String, Object> getAllUsers(int userId) {
-//        try {
-//            Session s = HibernateUtil.getSessionFactory().openSession();
-//            Criteria c1 = s.createCriteria(User.class);
-//            c1.add(Restrictions.ne("id", userId));
-//            List<User> users = c1.list();
-//
-//            Map<String, Object> map = new HashMap();
-//            List<UserDTO> userDTOs = new ArrayList<>();
-//
-//            for (User user : users) { // OFFLINE/ ONLINE
-//                Criteria c2 = s.createCriteria(FriendList.class);
-//                c2.add(Restrictions.and(Restrictions.eq("friendId.id", user.getId()),
-//                        Restrictions.eq("userId.id", userId),
-//                        Restrictions.ne("status", Status.BLOCKED)));
-//                FriendList fl1 = (FriendList) c2.uniqueResult(); // ACTIVE
-//
-//                if (fl1 != null) {
-//                    user.setStatus(Status.ACTIVE);
-//// if this user already in my friend list -> change status to ACTIVE (User Table => status)
-//                }
-//
-//                UserDTO dto = new UserDTO();
-//                dto.setId(user.getId());
-//                dto.setFirstName(user.getFirstName());
-//                dto.setLastName(user.getLastName());
-//                dto.setCountryCode(user.getCountryCode());
-//                dto.setContactNo(user.getContactNo());
-//                dto.setProfileImage(
-//                        ProfileService.getProfileUrl(user.getId()));
-//                dto.setCreatedAt(user.getCreatedAt());
-//                dto.setUpdatedAt(user.getUpdatedAt());
-//                dto.setStatus(user.getStatus());
-//                userDTOs.add(dto);
-//            }
-//
-//            map.put("type", "all_users");
-//            map.put("payload", userDTOs);
-//            return map;
-//        } catch (HibernateException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+
+    public static Map<String, Object> getAllUsers(int userId) {
+        try {
+            Session s = HibernateUtil.getSessionFactory().openSession();
+            Criteria c1 = s.createCriteria(User.class);
+            c1.add(Restrictions.ne("id", userId));
+            List<User> users = c1.list();
+
+            Map<String, Object> map = new HashMap();
+            List<UserDTO> userDTOs = new ArrayList<>();
+
+            for (User user : users) { // OFFLINE/ ONLINE
+                Criteria c2 = s.createCriteria(FriendList.class);
+                c2.add(Restrictions.and(Restrictions.eq("friendId.id", user.getId()),
+                        Restrictions.eq("userId.id", userId),
+                        Restrictions.ne("status", Status.BLOCKED)));
+                FriendList fl1 = (FriendList) c2.uniqueResult(); // ACTIVE
+
+                if (fl1 != null) {
+                    user.setStatus(Status.ACTIVE);
+// if this user already in my friend list -> change status to ACTIVE (User Table => status)
+                }
+
+                UserDTO dto = new UserDTO();
+                dto.setId(user.getId());
+                dto.setFirstName(user.getFirstName());
+                dto.setLastName(user.getLastName());
+                dto.setCountryCode(user.getCountryCode());
+                dto.setContactNo(user.getContactNo());
+                dto.setProfileImage(
+                        ProfileService.getProfileUrl(user.getId()));
+                dto.setCreatedAt(user.getCreatedAt());
+                dto.setUpdatedAt(user.getUpdatedAt());
+                dto.setStatus(user.getStatus());
+                userDTOs.add(dto);
+            }
+
+            map.put("type", "all_users");
+            map.put("payload", userDTOs);
+            return map;
+        } catch (HibernateException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

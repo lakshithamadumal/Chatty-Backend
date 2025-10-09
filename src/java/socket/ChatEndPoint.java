@@ -34,8 +34,8 @@ public class ChatEndPoint {
             ChatService.register(userId, session);
             UserService.updateLogInStatus(userId);
             UserService.updateFriendChatStatus(userId);
-//            ChatService.sendToUser(userId,
-//                    ChatService.friendListEnvelope(ChatService.getFriendChatsForUser(userId)));
+            ChatService.sendToUser(userId,
+                    ChatService.friendListEnvelope(ChatService.getFriendChatsForUser(userId)));
         }
     }
 
@@ -104,8 +104,8 @@ public class ChatEndPoint {
                     break;
                 }
                 case "get_all_users": {
-//                    Map<String, Object> envelope = UserService.getAllUsers(userId);
-//                    ChatService.sendToUser(userId, envelope);
+                    Map<String, Object> envelope = UserService.getAllUsers(userId);
+                    ChatService.sendToUser(userId, envelope);
                     break;
                 }
 
