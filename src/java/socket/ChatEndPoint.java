@@ -62,6 +62,12 @@ public class ChatEndPoint {
             Map<String, Object> map = ChatEndPoint.GSON.fromJson(message, Map.class);
             String type = (String) map.get("type");
             switch (type) {
+                case "PING": {
+                    JsonObject responseObject = new JsonObject();
+                    responseObject.addProperty("type", "PONG");
+                    ChatService.sendToUser(userId, responseObject);
+                    break;
+                }
                 case "send_chat": {
                     int fromId = (int) map.get("fromId");
                     int toId = (int) map.get("toId");
