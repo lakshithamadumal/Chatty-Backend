@@ -2,6 +2,7 @@ package controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import entity.Status;
 import entity.User;
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -70,6 +71,7 @@ public class UserController extends HttpServlet {
                 User user = new User(firstName, lastName, countryCode, contactNo);
                 user.setCreatedAt(new Date());
                 user.setUpdatedAt(new Date());
+                user.setStatus(Status.OFFLINE);
                 int id = (int) s.save(user);
                 s.beginTransaction().commit();
                 s.close();
@@ -86,6 +88,7 @@ public class UserController extends HttpServlet {
                 }
 
                 responseObject.addProperty("status", true);
+                responseObject.addProperty("userId", id);
             }
         }
         response.setContentType("application/json");
