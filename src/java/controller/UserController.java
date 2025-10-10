@@ -67,6 +67,8 @@ public class UserController extends HttpServlet {
 
             if (userList != null) {
                 responseObject.addProperty("message", "This Contact Number Already Exist");
+                responseObject.addProperty("status", true);
+
             } else {
                 User user = new User(firstName, lastName, countryCode, contactNo);
                 user.setCreatedAt(new Date());
